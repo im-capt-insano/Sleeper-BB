@@ -55,7 +55,7 @@ class Dumpster_Dynasty:
                     user_name.append(user)
                     break
         self.Users = user_name
-        # self.Standings = self.League.get_standings(self.Rosters, self.Users)
+        self.Standings = self.League.get_standings(self.Rosters, all_users)
         # 
         # self.Scoreboards = self.League.get_scoreboards(self.Rosters, self.Matchups, self.Users, "pts_half_ppr", season, week)
 
@@ -120,7 +120,7 @@ class RIP_Harambe:
                     user_name.append(user)
                     break
         self.Users = user_name
-        # self.Standings = self.League.get_standings(self.Rosters, self.Users)
+        self.Standings = self.League.get_standings(self.Rosters, all_users)
         # 
         # self.Scoreboards = self.League.get_scoreboards(self.Rosters, self.Matchups, self.Users, "pts_half_ppr", season, week)
 
@@ -134,6 +134,13 @@ class RIP_Harambe:
         # self.score8 = self.Scoreboards[4][1]
         # self.score9 = self.Scoreboards[5][0]
         # self.score10 = self.Scoreboards[5][1]
+
+def int_to_column(n):
+    result = ''
+    while n > 0:
+        n, remainder = divmod(n-1, 26)
+        result = chr(65+remainder) + result
+    return result
 
 def Player_stat_score(stats, League, *args):
     match League:
@@ -205,8 +212,8 @@ def Best_player(possible, starters, *args):
     return starters
 
 if __name__ == "__main__":
-    start_week = 2
-    end_week = 2
+    start_week = 3
+    end_week = 3
     year = 2024
     DST_list = ['ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NYG', 'NYJ', 'NO', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS']
     # gc, authorized_user = gspread.oauth_from_dict(credentials)
@@ -221,6 +228,8 @@ if __name__ == "__main__":
         gsheet = gc.open_by_url(cur_league.Sheet_url)
         for week in range(start_week, end_week+1):
             cur_league.Update(week, year)
+            sheet = gsheet.worksheet(str(year))
+            sheet.update(cur_league.Standings, 'I{0}:L{1}'.format(1+1+len(cur_league.Users)+2, 1+1+len(cur_league.Users)+2+len(cur_league.Users)))
             for owner in range(0, len(cur_league.Users)):
                 illegal = False
                 roster = cur_league.Matchups[owner]['players']
@@ -359,61 +368,26 @@ if __name__ == "__main__":
                         },
                         'horizontalAlignment': 'Center'
                     })
-                sheet.update_cell(1, week_start_col, '%i' % year)
-                sheet.update_cell(1, week_start_col+1,  'Week %i' % week)
-                sheet.update_cell(1, week_start_col+2, 'Actual')
-                if illegal:
-                    sheet.update_cell(1, week_start_col+3, 'ILLEGAL ROSTER')
-                sheet.update_cell(1, week_start_col+4, 'Ideal')
-                sheet.update_cell(1, week_start_col+5, 'DumDum Rate:')
                 dumdum = sum(~starters_actual['sleeper_id'].isin(starters_bb['sleeper_id']))/len(starters_bb)
-                sheet.update_cell(1, week_start_col+6, round(dumdum, 2))
-                column_headers = ['Player POS', 'Name', 'Pts.', 'Roster POS', 'Pts.', 'Name', 'Player POS']
-                for col_num in range(len(column_headers)):
-                    sheet.update_cell(2, week_start_col + col_num, column_headers[col_num])
+                sheet_col_start = int_to_column(week+((week-1)*7))
+                sheet_col_end = int_to_column(week+((week-1)*7)+6)
+                sheet_headers = ['{0}'.format(year), 'Week {0}'.format(week), 'Actual', '', 'Ideal', 'DumDum Rate:', dumdum]
+                if illegal:
+                    sheet_headers[3] = 'ILLEGAL ROSTER'
+                final_list = [sheet_headers]
+                final_list.append(['Player POS', 'Name', 'Pts.', 'Roster POS', 'Pts.', 'Name', 'Player POS'])
                 starters_actual_columns = starters_actual.columns.values
                 starters_bb_columns = starters_bb.columns.values
                 pos_names = cur_league.Starting_pos
-                for row in range(3, 3 + len(starters_bb) + 1 + len(bench_bb)):
-                    if row < 3 + len(starters_bb):
-                        val_row = row - 3
-                        for col in range(week_start_col, week_start_col + 7):
-                            match (col - week_start_col + 1):
-                                case 1 | 7:
-                                    val_col = 'POS'
-                                case 2 | 6:
-                                    val_col = 'Name'
-                                case 3 | 5:
-                                    val_col = 'Pts'
-                            if (col - week_start_col + 1) < 4:
-                                sheet.update_cell(row, col, starters_actual[val_col][val_row])
-                            elif (col - week_start_col + 1) == 4:
-                                sheet.update_cell(row, col, pos_names[val_row])
-                            elif (col - week_start_col + 1) > 4:
-                                sheet.update_cell(row, col, starters_bb[val_col][val_row])
-                        time.sleep(10)
-                    elif row == 3 + len(starters_bb):
-                        sheet.update_cell(row, week_start_col+1, 'Actual Total')
-                        sheet.update_cell(row, week_start_col+2, round(starters_actual['Pts'].sum(),2))
-                        sheet.update_cell(row, week_start_col+3, 'Total')
-                        sheet.update_cell(row, week_start_col+4, round(starters_bb['Pts'].sum(),2))
-                        sheet.update_cell(row, week_start_col+5, 'Best Possible Total')
-                    elif row > 3 + len(starters_bb):
-                        val_row = row - (3 + len(starters_bb)) - 1
-                        for col in range(week_start_col, week_start_col + 7):
-                            match (col - week_start_col + 1):
-                                case 1 | 7:
-                                    val_col = 'POS'
-                                case 2 | 6:
-                                    val_col = 'Name'
-                                case 3 | 5:
-                                    val_col = 'Pts'
-                            if (col - week_start_col + 1) < 4:
-                                sheet.update_cell(row, col, bench_actual[val_col][val_row])
-                            elif (col - week_start_col + 1) == 4:
-                                sheet.update_cell(row, col, 'BN')
-                            elif (col - week_start_col + 1) > 4:
-                                sheet.update_cell(row, col, bench_bb[val_col][val_row])
-                        time.sleep(10)
-
-
+                starters_list = []
+                for row in range(0, len(starters_bb)):
+                    final_list.append([starters_actual['POS'][row], starters_actual['Name'][row], starters_actual['Pts'][row],
+                                          pos_names[row],
+                                          starters_bb['Pts'][row], starters_bb['Name'][row], starters_bb['Pts'][row]])
+                final_list.append(['', 'Actual Total', round(starters_actual['Pts'].sum(),2), 'Total', round(starters_bb['Pts'].sum(),2), 'Best Possible Total', ''])
+                bench_list = []
+                for row in range(0, len(bench_actual)):
+                    final_list.append([bench_actual['POS'][row], bench_actual['Name'][row], bench_actual['Pts'][row],
+                                          'BN',
+                                          bench_bb['Pts'][row], bench_bb['Name'][row], bench_bb['Pts'][row]])
+                sheet.update(final_list, '{0}1:{1}{2}'.format(sheet_col_start, sheet_col_end, 2+len(starters_bb)+1+len(bench_actual)))
