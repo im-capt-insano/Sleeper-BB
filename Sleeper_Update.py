@@ -394,117 +394,125 @@ if __name__ == "__main__":
         gc = gspread.service_account(filename=cur_league.Service_account)
         gsheet = gc.open_by_url(cur_league.Sheet_url)
         num_owners = len(cur_league.Users)
+        num_playoff = cur_league.Num_playoff_teams
+        non_playoff = num_owners-num_playoff
         for year in range(cur_league.Start_year, year+1):
             try:
                 sheet = gsheet.worksheet(str(year))
             except:
-                idx1 = 1+1+num_owners+1+1
-                idx2 = idx1+cur_league.Num_playoff_teams
-                idx3 = idx1+num_owners-1
+                r1 = 1
+                r2 = r1+1
+                r3 = r1+num_owners
+                r4 = r3+2
+                r5 = r4+1
+                r6 = r4+non_playoff
+                r7 = r4+num_playoff
+                r8 = r4+num_owners
                 weekly_table = [['Owner', 'Team', 'Max PF', 'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10', 'Week 11', 'Week 12', 'Week 13', 'Week 14', 'Week 15', 'Week 16', 'Week 17', 'Week 18']]
-                draft_table = [['Draft Order', '=B1', '=J{0}'.format(num_owners+3), '=K{0}'.format(num_owners+3), '=H{0}'.format(num_owners+3), '=N{0}'.format(num_owners+3)]]
+                draft_table = [['Draft Order', '=B1', '=J{0}'.format(r4), '=K{0}'.format(r4), '=H{0}'.format(r4), '=N{0}'.format(r4)]]
                 standings_table = [['Standings', '=B1', 'W', 'L', 'PF', 'Max PF', 'Max PF Place']]
-                max_table = [['=N{0}'.format(num_owners+3), '=B1', '=M{0}'.format(num_owners+3)]]
+                max_table = [['=N{0}'.format(r4), '=B1', '=M{0}'.format(r4)]]
                 for owner_num in range(0,num_owners):
                     #   Weekly Max PF table
                     owner = cur_league.Users[owner_num][1]
-                    sheet_row_start = (1+2+cur_league.Num_starter) + (year-cur_league.Start_year)*(cur_league.Roster_size+3)
-                    wk1 = '={0}!{1}{2}'.format(owner, int_to_column((1-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk2 = '={0}!{1}{2}'.format(owner, int_to_column((2-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk3 = '={0}!{1}{2}'.format(owner, int_to_column((3-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk4 = '={0}!{1}{2}'.format(owner, int_to_column((4-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk5 = '={0}!{1}{2}'.format(owner, int_to_column((5-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk6 = '={0}!{1}{2}'.format(owner, int_to_column((6-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk7 = '={0}!{1}{2}'.format(owner, int_to_column((7-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk8 = '={0}!{1}{2}'.format(owner, int_to_column((8-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk9 = '={0}!{1}{2}'.format(owner, int_to_column((9-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk10 = '={0}!{1}{2}'.format(owner, int_to_column((10-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk11 = '={0}!{1}{2}'.format(owner, int_to_column((11-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk12 = '={0}!{1}{2}'.format(owner, int_to_column((12-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk13 = '={0}!{1}{2}'.format(owner, int_to_column((13-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk14 = '={0}!{1}{2}'.format(owner, int_to_column((14-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk15 = '={0}!{1}{2}'.format(owner, int_to_column((15-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk16 = '={0}!{1}{2}'.format(owner, int_to_column((16-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk17 = '={0}!{1}{2}'.format(owner, int_to_column((17-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    wk18 = '={0}!{1}{2}'.format(owner, int_to_column((18-1)*8+5), (1+2+cur_league.Num_starter)+(year-cur_league.Start_year)*(cur_league.Roster_size+3))
-                    weekly_table.append(['', owner, '=SUM({0}{1}:{2}{1})'.format(int_to_column(4),owner_num+2,int_to_column(3+18)),
+                    r_week_score_yr = (1+2+cur_league.Num_starter) + (year-cur_league.Start_year)*(cur_league.Roster_size+3)
+                    wk1 = '={0}!{1}{2}'.format(owner, int_to_column((1-1)*8+5), r_week_score_yr)
+                    wk2 = '={0}!{1}{2}'.format(owner, int_to_column((2-1)*8+5), r_week_score_yr)
+                    wk3 = '={0}!{1}{2}'.format(owner, int_to_column((3-1)*8+5), r_week_score_yr)
+                    wk4 = '={0}!{1}{2}'.format(owner, int_to_column((4-1)*8+5), r_week_score_yr)
+                    wk5 = '={0}!{1}{2}'.format(owner, int_to_column((5-1)*8+5), r_week_score_yr)
+                    wk6 = '={0}!{1}{2}'.format(owner, int_to_column((6-1)*8+5), r_week_score_yr)
+                    wk7 = '={0}!{1}{2}'.format(owner, int_to_column((7-1)*8+5), r_week_score_yr)
+                    wk8 = '={0}!{1}{2}'.format(owner, int_to_column((8-1)*8+5), r_week_score_yr)
+                    wk9 = '={0}!{1}{2}'.format(owner, int_to_column((9-1)*8+5), r_week_score_yr)
+                    wk10 = '={0}!{1}{2}'.format(owner, int_to_column((10-1)*8+5), r_week_score_yr)
+                    wk11 = '={0}!{1}{2}'.format(owner, int_to_column((11-1)*8+5), r_week_score_yr)
+                    wk12 = '={0}!{1}{2}'.format(owner, int_to_column((12-1)*8+5), r_week_score_yr)
+                    wk13 = '={0}!{1}{2}'.format(owner, int_to_column((13-1)*8+5), r_week_score_yr)
+                    wk14 = '={0}!{1}{2}'.format(owner, int_to_column((14-1)*8+5), r_week_score_yr)
+                    wk15 = '={0}!{1}{2}'.format(owner, int_to_column((15-1)*8+5), r_week_score_yr)
+                    wk16 = '={0}!{1}{2}'.format(owner, int_to_column((16-1)*8+5), r_week_score_yr)
+                    wk17 = '={0}!{1}{2}'.format(owner, int_to_column((17-1)*8+5), r_week_score_yr)
+                    wk18 = '={0}!{1}{2}'.format(owner, int_to_column((18-1)*8+5), r_week_score_yr)
+                    weekly_table.append([owner, '', '=SUM({0}{1}:{2}{1})'.format(int_to_column(4),r2+owner_num,int_to_column(3+18)),
                         wk1, wk2, wk3, wk4, wk5, wk6, wk7, wk8, wk9, wk10, wk11, wk12, wk13, wk14, wk15, wk16, wk17, wk18])
                     #   Draft Table
-                    num_playoff = cur_league.Num_playoff_teams
-                    non_playoff = num_owners-num_playoff
-                    if owner_num+1 < num_owners-cur_league.Num_playoff_teams:
-                        draft_table.append([owner_num+1, '=XLOOKUP(INDEX(SORT($N${0}:$N${1},1,FALSE()),$A{2}),$N${0}:$N${1},$I${0}:$K${1})'.format(idx2, idx3, idx1+owner_num), '', '', '=XLOOKUP($B{0},$I${1}:$I${2},$H${1}:$H${2})'.format(idx1+owner_num, idx2, idx3), '=XLOOKUP($B{0},$I${1}:$I${2},$N${1}:$N${2})'.format(idx1+owner_num, idx2, idx3)])
+                    if owner_num < num_owners-cur_league.Num_playoff_teams:
+                        draft_table.append([owner_num+1, '=XLOOKUP(INDEX(SORT($N${0}:$N${1},1,FALSE()),$A{2}),$N${0}:$N${1},$I${0}:$K${1})'.format(r7+1, r8, r5+owner_num), '', '', '=XLOOKUP($B{0},$I${1}:$I${2},$H${1}:$H${2})'.format(r5+owner_num, r5, r8), '=XLOOKUP($B{0},$I${1}:$I${2},$N${1}:$N${2})'.format(r5+owner_num, r5, r8)])
                     else:
-                        draft_table.append([owner_num+1, '=$I{0}'.format(idx1+num_owners-(owner_num+1)), '=XLOOKUP(B${0},$I${1}:$I${2},$J${1}:$J{2})'.format(idx1+owner_num,idx1,idx3), '=XLOOKUP(B${0},$I${1}:$I${2},$K${1}:$K{2})'.format(idx1+owner_num,idx1,idx3), '=XLOOKUP(B${0},$I${1}:$I${2},$H${1}:$H{2})'.format(idx1+owner_num,idx1,idx3), '=XLOOKUP(B${0},$I${1}:$I${2},$N${1}:$N{2})'.format(idx1+owner_num,idx1,idx3)])
+                        draft_table.append([owner_num+1, '=XLOOKUP(INDEX(SORT($H${0}:$H${1},1,FALSE()),$A{2}-$A${3}),$H${0}:$H${1},$I${0}:$K${1})'.format(r5, r7, r5+owner_num, r6), '', '', '=XLOOKUP($B{0},$I${1}:$I${2},$H${1}:$H${2})'.format(r5+owner_num, r5, r8), '=XLOOKUP($B{0},$I${1}:$I${2},$N${1}:$N${2})'.format(r5+owner_num, r5, r8)])
                     #   Season Max PF Table
                     if owner_num == 0:
                         max_table.append([owner_num+1,'=SORT($B$2:$C${0},2,FALSE)'.format(1+num_owners),''])
                     else:
                         max_table.append([owner_num+1,'',''])
-                sheet = gsheet.add_worksheet(title=str(year), rows=(1+num_owners+2+num_owners), cols=3+end_week)
-                sheet.update(weekly_table, 'A1:U{0}'.format(1+num_owners), raw=False)
-                sheet.update(draft_table, 'A{0}:F{1}'.format(idx1-1, idx3), raw=False)
-                sheet.update(standings_table, 'H{0}:N{1}'.format(idx1-1, idx3), raw=False)
-                sheet.update(max_table, 'P{0}:R{1}'.format(idx1-1, idx3), raw=False)
-                sheet.update([['=HYPERLINK("'+git+'", "GitHub")']], 'S{0}:S{0}'.format(idx1-1), raw=False)
-                format_cell_range(sheet, 'A1:U{0}'.format(idx3), CellFormat(horizontalAlignment='Center'))
+                    #   Standings Table
+                    standings_table.append([owner_num+1, '', '', '', '', '=XLOOKUP($I{0},$Q${1}:$Q${2},$R${1}:$R${2})'.format(r5+owner_num, r5, r8), '=INDEX(MATCH($I{0},$Q${1}:$Q${2},0))'.format(r5+owner_num, r5, r8)])
+                sheet = gsheet.add_worksheet(title=str(year), rows=(r8), cols=3+18)
+                sheet.update(weekly_table, 'A1:U{0}'.format(r3), raw=False)
+                sheet.update(draft_table, 'A{0}:F{1}'.format(r4, r8), raw=False)
+                sheet.update(standings_table, 'H{0}:N{1}'.format(r4, r8), raw=False)
+                sheet.update(max_table, 'P{0}:R{1}'.format(r4, r8), raw=False)
+                sheet.update([['=HYPERLINK("'+git+'", "GitHub")']], 'S{0}:S{0}'.format(r4), raw=False)
+                format_cell_range(sheet, 'A1:U{0}'.format(r8), CellFormat(horizontalAlignment='Center'))
                 format_cell_range(sheet, 'A1:U1', txt_fmt_bld)
-                format_cell_range(sheet, 'A{0}:U{0}'.format(idx1-1), txt_fmt_bld)
-                format_cell_range(sheet, 'A1:U{0}'.format(num_owners+1), Border_format('none'))
-                format_cell_range(sheet, 'A{0}:F{1}'.format(idx1,idx1+num_owners-1), Border_format('none'))
-                format_cell_range(sheet, 'H{0}:N{1}'.format(idx1,idx1+num_owners-1), Border_format('none'))
-                format_cell_range(sheet, 'P{0}:R{1}'.format(idx1,idx1+num_owners-1), Border_format('none'))
-                format_cell_range(sheet, 'A{0}:F{0}'.format(idx1+non_playoff-1), Border_format('t'))
-                format_cell_range(sheet, 'A{0}:U{0}'.format(num_owners+1), Border_format('b'))
-                format_cell_range(sheet, 'A{0}:F{0}'.format(idx1+num_owners-1), Border_format('b'))
-                format_cell_range(sheet, 'H{0}:N{0}'.format(idx1+num_owners-1), Border_format('b'))
-                format_cell_range(sheet, 'H{0}:N{0}'.format(idx1+num_playoff), Border_format('b'))
-                format_cell_range(sheet, 'P{0}:R{0}'.format(idx1+num_owners-1), Border_format('b'))
-                format_cell_range(sheet, 'A2:A{0}'.format(num_owners+1), Border_format('l'))
-                format_cell_range(sheet, 'A{0}:A{1}'.format(idx1,idx1+num_owners-1), Border_format('l'))
-                format_cell_range(sheet, 'H{0}:H{1}'.format(idx1,idx1+num_owners-1), Border_format('l'))
-                format_cell_range(sheet, 'P{0}:P{1}'.format(idx1,idx1+num_owners-1), Border_format('l'))
-                format_cell_range(sheet, 'U2:U{0}'.format(num_owners+1), Border_format('r'))
-                format_cell_range(sheet, 'F{0}:F{1}'.format(idx1,idx1+num_owners-1), Border_format('r'))
-                format_cell_range(sheet, 'N{0}:N{1}'.format(idx1,idx1+num_owners-1), Border_format('r'))
-                format_cell_range(sheet, 'R{0}:R{1}'.format(idx1,idx1+num_owners-1), Border_format('r'))
+                format_cell_range(sheet, 'A{0}:U{0}'.format(r4), txt_fmt_bld)
+                format_cell_range(sheet, 'A1:U{0}'.format(r3), Border_format('none'))
+                format_cell_range(sheet, 'A{0}:F{1}'.format(r4, r8), Border_format('none'))
+                format_cell_range(sheet, 'H{0}:N{1}'.format(r4, r8), Border_format('none'))
+                format_cell_range(sheet, 'P{0}:R{1}'.format(r4, r8), Border_format('none'))
+                format_cell_range(sheet, 'A{0}:U{0}'.format(r3), Border_format('b'))
+                format_cell_range(sheet, 'A{0}:F{0}'.format(r6), Border_format('b'))
+                format_cell_range(sheet, 'A{0}:F{0}'.format(r8), Border_format('b'))
+                format_cell_range(sheet, 'H{0}:N{0}'.format(r7), Border_format('b'))
+                format_cell_range(sheet, 'H{0}:N{0}'.format(r8), Border_format('b'))
+                format_cell_range(sheet, 'P{0}:R{0}'.format(r8), Border_format('b'))
+                format_cell_range(sheet, 'A2:A{0}'.format(r3), Border_format('l'))
+                format_cell_range(sheet, 'A{0}:A{1}'.format(r4, r8), Border_format('l'))
+                format_cell_range(sheet, 'H{0}:H{1}'.format(r4, r8), Border_format('l'))
+                format_cell_range(sheet, 'P{0}:P{1}'.format(r4, r8), Border_format('l'))
+                format_cell_range(sheet, 'U2:U{0}'.format(r3), Border_format('r'))
+                format_cell_range(sheet, 'F{0}:F{1}'.format(r4, r8), Border_format('r'))
+                format_cell_range(sheet, 'N{0}:N{1}'.format(r4, r8), Border_format('r'))
+                format_cell_range(sheet, 'R{0}:R{1}'.format(r4, r8), Border_format('r'))
                 format_cell_range(sheet, 'A2', Border_format('tl'))
-                format_cell_range(sheet, 'A{0}'.format(idx1), Border_format('tl'))
-                format_cell_range(sheet, 'A{0}'.format(idx1+non_playoff-1), Border_format('tl'))
-                format_cell_range(sheet, 'H{0}'.format(idx1), Border_format('tl'))
-                format_cell_range(sheet, 'P{0}'.format(idx1), Border_format('tl'))
+                format_cell_range(sheet, 'A{0}'.format(r5), Border_format('tl'))
+                format_cell_range(sheet, 'H{0}'.format(r5), Border_format('tl'))
+                format_cell_range(sheet, 'P{0}'.format(r5), Border_format('tl'))
                 format_cell_range(sheet, 'U2', Border_format('tr'))
-                format_cell_range(sheet, 'F{0}'.format(idx1), Border_format('tr'))
-                format_cell_range(sheet, 'F{0}'.format(idx1+non_playoff-1), Border_format('tr'))
-                format_cell_range(sheet, 'N{0}'.format(idx1), Border_format('tr'))
-                format_cell_range(sheet, 'R{0}'.format(idx1), Border_format('tr'))
+                format_cell_range(sheet, 'F{0}'.format(r5), Border_format('tr'))
+                format_cell_range(sheet, 'N{0}'.format(r5), Border_format('tr'))
+                format_cell_range(sheet, 'R{0}'.format(r5), Border_format('tr'))
                 format_cell_range(sheet, 'A1:U1', Border_format('tb'))
-                format_cell_range(sheet, 'A{0}:F{0}'.format(idx1-1), (Border_format('tb')))
-                format_cell_range(sheet, 'H{0}:N{0}'.format(idx1-1), Border_format('tb'))
-                format_cell_range(sheet, 'P{0}:R{0}'.format(idx1-1), Border_format('tb'))
-                format_cell_range(sheet, 'A{0}'.format(1+num_owners), Border_format('bl'))
-                format_cell_range(sheet, 'H{0}'.format(idx1+num_playoff), Border_format('bl'))
-                format_cell_range(sheet, 'A{0}'.format(idx3), Border_format('bl'))
-                format_cell_range(sheet, 'H{0}'.format(idx3), Border_format('bl'))
-                format_cell_range(sheet, 'P{0}'.format(idx3), Border_format('bl'))
-                format_cell_range(sheet, 'U{0}'.format(1+num_owners), Border_format('br'))
-                format_cell_range(sheet, 'N{0}'.format(idx1+num_playoff), Border_format('br'))
-                format_cell_range(sheet, 'F{0}'.format(idx3), Border_format('br'))
-                format_cell_range(sheet, 'N{0}'.format(idx3), Border_format('br'))
-                format_cell_range(sheet, 'R{0}'.format(idx3), Border_format('br'))
-                format_cell_range(sheet, 'C2:C{0}'.format(num_owners+1), Border_format('lr'))
-                format_cell_range(sheet, 'A{0}'.format(idx1-1), Border_format('tbl'))
-                format_cell_range(sheet, 'H{0}'.format(idx1-1), Border_format('tbl'))
-                format_cell_range(sheet, 'P{0}'.format(idx1-1), Border_format('tbl'))
-                format_cell_range(sheet, 'F{0}'.format(idx1-1), Border_format('tbr'))
-                format_cell_range(sheet, 'N{0}'.format(idx1-1), Border_format('tbr'))
-                format_cell_range(sheet, 'R{0}'.format(idx1-1), Border_format('tbr'))
-                format_cell_range(sheet, 'C{0}'.format(1+num_owners), Border_format('blr'))
+                format_cell_range(sheet, 'A{0}:F{0}'.format(r4), (Border_format('tb')))
+                format_cell_range(sheet, 'H{0}:N{0}'.format(r4), Border_format('tb'))
+                format_cell_range(sheet, 'P{0}:R{0}'.format(r4), Border_format('tb'))
+                format_cell_range(sheet, 'A{0}'.format(r3), Border_format('bl'))
+                format_cell_range(sheet, 'A{0}'.format(r6), Border_format('bl'))
+                format_cell_range(sheet, 'H{0}'.format(r7), Border_format('bl'))
+                format_cell_range(sheet, 'A{0}'.format(r8), Border_format('bl'))
+                format_cell_range(sheet, 'H{0}'.format(r8), Border_format('bl'))
+                format_cell_range(sheet, 'P{0}'.format(r8), Border_format('bl'))
+                format_cell_range(sheet, 'U{0}'.format(r3), Border_format('br'))
+                format_cell_range(sheet, 'F{0}'.format(r6), Border_format('br'))
+                format_cell_range(sheet, 'F{0}'.format(r8), Border_format('br'))
+                format_cell_range(sheet, 'N{0}'.format(r7), Border_format('br'))
+                format_cell_range(sheet, 'N{0}'.format(r8), Border_format('br'))
+                format_cell_range(sheet, 'R{0}'.format(r8), Border_format('br'))
+                format_cell_range(sheet, 'C2:C{0}'.format(r3), Border_format('lr'))
+                format_cell_range(sheet, 'A{0}'.format(r4), Border_format('tbl'))
+                format_cell_range(sheet, 'H{0}'.format(r4), Border_format('tbl'))
+                format_cell_range(sheet, 'P{0}'.format(r4), Border_format('tbl'))
+                format_cell_range(sheet, 'F{0}'.format(r4), Border_format('tbr'))
+                format_cell_range(sheet, 'N{0}'.format(r4), Border_format('tbr'))
+                format_cell_range(sheet, 'R{0}'.format(r4), Border_format('tbr'))
+                format_cell_range(sheet, 'C{0}'.format(r3), Border_format('blr'))
                 format_cell_range(sheet, 'C1:C1', Border_format('all'))
+            cur_league.Update(end_week, year)
+            sheet = gsheet.worksheet(str(year))
+            sheet.update(cur_league.Standings, 'I{0}:L{1}'.format(r5, r8))
             for week in range(start_week, end_week+1):
                 cur_league.Update(week, year)
-                sheet = gsheet.worksheet(str(year))
-                sheet.update(cur_league.Standings, 'I{0}:L{1}'.format(1+1+num_owners+2, 1+1+num_owners+2+num_owners))
                 for owner in range(0, num_owners):
                     illegal = False
                     roster = cur_league.Matchups[owner]['players']
