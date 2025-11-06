@@ -1,11 +1,13 @@
 import pandas as pd
 import gspread
 import time
+import math
 from sleeper_wrapper import League, Players
 from datetime import datetime as dt
 import nfl_data_py as nfl
 import openpyxl as pyxl
 from gspread_formatting import *
+from gspread.exceptions import APIError
 
 class Dumpster_Dynasty:
 
@@ -14,7 +16,6 @@ class Dumpster_Dynasty:
         self.Sheet_url = 'https://docs.google.com/spreadsheets/d/1ko1XnttApOFkA1x1RF95Ls5C-aM98p766ht058Il350/edit?pli=1&gid=962080300#gid=962080300'
         self.Service_account = r'C:\Users\Jed\AppData\Local\Programs\Python\Python310\Lib\site-packages\gspread\dumpster-dynasty-bb.json'
         self.Credentials = {"installed":{"client_id":"215364173021-j261liv1nscj8tj4es9do2mun9t4a603.apps.googleusercontent.com","project_id":"dumpster-dynasty-bb","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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","redirect_uris":["http://localhost"]}}
-        self.League = League(1128506799759429632)
         self.Start_year = 2024
         starting_pos = []
         self.Num_qb = 1
@@ -49,12 +50,19 @@ class Dumpster_Dynasty:
         self.Num_taxi = 3
         self.Roster_size = self.Num_starter + self.Num_bench + self.Num_ir + self.Num_taxi
         self.Num_playoff_teams = 6
+        self.Num_bye_teams = 2
 
     def Update(self, input, *args):
         if input >= self.Start_year:
             match input:
                 case 2024:
                     self.League = League(1128506799759429632)
+                case 2025:
+                    self.League = League(1180265469580161024)
+            self.playoff_quarter = [15]
+            self.playoff_semi = [16]
+            self.playoff_final = [17]
+            self.Name = self.League.get_league_name()
             self.Rosters = self.League.get_rosters()
             all_users = self.League.get_users()
             user_info = []
@@ -71,19 +79,6 @@ class Dumpster_Dynasty:
             self.Standings = self.League.get_standings(self.Rosters, all_users)
         else:
             self.Matchups = self.League.get_matchups(input)
-        # 
-        # self.Scoreboards = self.League.get_scoreboards(self.Rosters, self.Matchups, self.Users, "pts_half_ppr", season, week)
-
-        # self.score1 = self.Scoreboards[1][0]
-        # self.score2 = self.Scoreboards[1][1]
-        # self.score3 = self.Scoreboards[2][0]
-        # self.score4 = self.Scoreboards[2][1]
-        # self.score5 = self.Scoreboards[3][0]
-        # self.score6 = self.Scoreboards[3][1]
-        # self.score7 = self.Scoreboards[4][0]
-        # self.score8 = self.Scoreboards[4][1]
-        # self.score9 = self.Scoreboards[5][0]
-        # self.score10 = self.Scoreboards[5][1]
 
     def Stat_points(self):
         Stat_pts = []
@@ -169,6 +164,7 @@ class RIP_Harambe:
         self.Num_taxi = 3
         self.Roster_size = self.Num_starter + self.Num_bench + self.Num_ir + self.Num_taxi
         self.Num_playoff_teams = 7
+        self.Num_bye_teams = 1
 
     def Update(self, input, *args):
         if input >= self.Start_year:
@@ -177,6 +173,12 @@ class RIP_Harambe:
                     self.League = League(919311157205319680)
                 case 2024:
                     self.League = League(1088873848449097728)
+                case 2025:
+                    self.League = League(1180228760887463936)
+            self.playoff_quarter = [14]
+            self.playoff_semi = [15]
+            self.playoff_final = [16, 17]
+            self.Name = self.League.get_league_name()
             self.Rosters = self.League.get_rosters()
             all_users = self.League.get_users()
             user_info = []
@@ -193,19 +195,6 @@ class RIP_Harambe:
             self.Standings = self.League.get_standings(self.Rosters, all_users)
         else:
             self.Matchups = self.League.get_matchups(input)
-        # 
-        # self.Scoreboards = self.League.get_scoreboards(self.Rosters, self.Matchups, self.Users, "pts_half_ppr", season, week)
-
-        # self.score1 = self.Scoreboards[1][0]
-        # self.score2 = self.Scoreboards[1][1]
-        # self.score3 = self.Scoreboards[2][0]
-        # self.score4 = self.Scoreboards[2][1]
-        # self.score5 = self.Scoreboards[3][0]
-        # self.score6 = self.Scoreboards[3][1]
-        # self.score7 = self.Scoreboards[4][0]
-        # self.score8 = self.Scoreboards[4][1]
-        # self.score9 = self.Scoreboards[5][0]
-        # self.score10 = self.Scoreboards[5][1]
 
     def Stat_points(self):
             Stat_pts = []
@@ -258,31 +247,12 @@ def int_to_column(n):
         result = chr(65+remainder) + result
     return result
 
-# def Player_stat_score(stats, League, *args):
-#     pts = 0
-#     pts = pts + pass_yd * stats['passing_yards'].values[0]
-#     pts = pts + pass_td * stats['passing_tds'].values[0]
-#     pts = pts + pass_conv2 * stats['passing_2pt_conversions'].values[0]
-#     pts = pts + pass_int * stats['interceptions'].values[0]
-#     pts = pts + rush_yd * stats['rushing_yards'].values[0]
-#     pts = pts + rush_td * stats['rushing_tds'].values[0]
-#     pts = pts + rush_conv2 * stats['rushing_2pt_conversions'].values[0]
-#     pts = pts + rec * stats['receptions'].values[0]
-#     pts = pts + rec_yd * stats['receiving_yards'].values[0]
-#     pts = pts + rec_td * stats['receiving_tds'].values[0]
-#     pts = pts + rec_conv2 * stats['receiving_2pt_conversions'].values[0]
-#     pts = pts + st_td * stats['special_teams_tds'].values[0]
-#     pts = pts + fumble_loss * (stats['sack_fumbles_lost'].values[0] + stats['rushing_fumbles_lost'].values[0] + stats['receiving_fumbles_lost'].values[0])
-
-#     pts = round(pts, 2)
-    
-#     return pts
-
 def Best_player(possible, starters, *args):
     if starters:
         starters_df = pd.DataFrame(starters, columns=possible.columns)
         possible = possible[~possible['gsis_id'].isin(starters_df['gsis_id'])]
-    starters.append(possible.loc[possible.idxmax().Pts].values)
+    if not possible.empty:
+        starters.append(possible.loc[possible.idxmax().Pts].values)
 
     return starters
 
@@ -388,6 +358,7 @@ def Border_format(sides):
     return brdr_fmt
 
 if __name__ == "__main__":
+    sl_time = 3
     start_week = 1
     end_week = 18
     year_td = dt.now().year
@@ -396,7 +367,7 @@ if __name__ == "__main__":
     # gc, authorized_user = gspread.oauth_from_dict(credentials)
     Dumpster = Dumpster_Dynasty()
     Harambe = RIP_Harambe()
-    leagues_all = [Harambe, Dumpster]
+    leagues_all = [Dumpster, Harambe]
     git = 'https://github.com/im-capt-insano/Sleeper-BB'
     # all_players = Players().get_all_players('nfl')
     # week_data = nfl.import_weekly_data([year])
@@ -409,18 +380,22 @@ if __name__ == "__main__":
     for cur_league in leagues_all:
         gc = gspread.service_account(filename=cur_league.Service_account)
         gsheet = gc.open_by_url(cur_league.Sheet_url)
-        for year in range(cur_league.Start_year, year_td+1):
+        # for year in range(cur_league.Start_year, year_td+1):
+        for year in range(year_td, year_td+1):
             match year:
                 case 2023:
                     player_table = pd.read_csv('https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2023.csv')
                 case 2024:
                     player_table = pd.read_csv('https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2024.csv')
+                case 2025:
+                    player_table = pd.read_csv('https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2025.csv')
             cur_league.Update(year)
             num_owners = len(cur_league.Users)
             num_playoff = cur_league.Num_playoff_teams
             non_playoff = num_owners-num_playoff
             #   Year Summary Update needs to happen after player update due to formulas not working if the reference sheet does not yet exist
-            for week in range(start_week, end_week+1):
+            # for week in range(start_week, end_week+1):
+            for week in range(start_week, end_week):
                 #   Grab data from each specific week
                 cur_league.Update(week, year)
                 #   Create variables which will be used in the for loop
@@ -435,13 +410,33 @@ if __name__ == "__main__":
                 r5 = r4+1
                 r6 = r5+1
                 r7 = r5+cur_league.Roster_size-cur_league.Num_starter
-                #   Determine optimal lineup and write to owners sheet for each week
                 for owner in range(0, num_owners):
                     illegal = False
-                    roster = cur_league.Matchups[owner]['players']
-                    starters = cur_league.Matchups[owner]['starters']
+                    point_count = True
+                    owner_matchups = cur_league.Matchups[owner]
+                    if week in cur_league.playoff_quarter + cur_league.playoff_semi + cur_league.playoff_final:
+                        bye = False
+                        playoffs = cur_league.League.get_playoff_winners_bracket()
+                        if week in cur_league.playoff_semi + cur_league.playoff_final:
+                            playoff_matchups = [1,2]
+                            if owner_matchups['matchup_id'] not in playoff_matchups:
+                                point_count = False
+                        else:
+                            temp = cur_league.Num_playoff_teams-cur_league.Num_bye_teams
+                            playoff_matchups = range(1, int(temp/2) + cur_league.Num_bye_teams + 1)
+                            for match in range(0, len(playoffs)):
+                                if playoffs[match]['t1'] == owner+1:
+                                    bye = True
+                                    continue
+                                if playoffs[match]['t2'] == owner+1:
+                                    bye = True
+                                    continue
+                            if owner_matchups['matchup_id'] not in playoff_matchups and not bye:
+                                point_count = False
+                    starters = owner_matchups['starters']
                     if starters is None:
                         continue 
+                    roster = owner_matchups['players']
                     bench = list(set(roster) ^ set(starters))
                     user_id = cur_league.Users[owner][0]
                     user_name = cur_league.Users[owner][1]
@@ -450,7 +445,7 @@ if __name__ == "__main__":
                     roster_data = []
                     bench_pts = []
                     starter_pts = []
-                    roster_data_dict = cur_league.Matchups[owner]['players_points']
+                    roster_data_dict = owner_matchups['players_points']
                     #   Seperate actual starters from actual bench
                     for sleeper_id, pts in roster_data_dict.items():
                         if sleeper_id in starters:
@@ -467,7 +462,15 @@ if __name__ == "__main__":
                             player_name = roster[player]
                             player_gsis_id = roster[player]
                             player_pos = 'DST'
+                        elif roster[player] == '11539':
+                            player_name = 'Jake Bates'
+                            player_gsis_id = '00-0039172'
+                            player_pos = 'K'
                         else:
+                            #   Jake Bates
+                            if roster[player] == '11539':
+                                player_name = 'Jake Bates'
+
                             player_nfl = player_table[player_table['sleeper_id'].isin([int(roster[player])])][['full_name', 'gsis_id', 'position', 'depth_chart_position']]
                             #   Fill in data for not found players
                             try:
@@ -566,7 +569,6 @@ if __name__ == "__main__":
                     starters_actual = starters_actual.loc[starters_actual_qb_loc + starters_actual_rb_loc + starters_actual_wr_loc + starters_actual_te_loc + starters_actual_flex_loc + starters_actual_sflex_loc + starters_actual_k_loc + starters_actual_dst_loc]
                     #   Fucking Henry Ruggs and empty roster spots
                     #   Starters who don't have a team need to be delt with and starting roster labeled as illegal
-                    #while len(starters_actual) < len(starters_bb):
                     while len(starters_actual) < cur_league.Num_starter:
                         illegal = True
                         temp_list = starters_actual.values.tolist()
@@ -579,7 +581,7 @@ if __name__ == "__main__":
                         bench_bb = pd.DataFrame(temp_list, columns=bench_actual.columns)
                     starters_actual = starters_actual.reset_index(drop=True)
                     #   Start populating players weekly sheet
-                    print(user_name)
+                    print('{0} {1} Week {2}: {3}'.format(cur_league.Name, year, week, user_name))
                     try:
                         sheet = gsheet.worksheet(user_name)
                     #   Create sheet if owner sheet doesn't already exist
@@ -597,10 +599,10 @@ if __name__ == "__main__":
                             or7 = or5+cur_league.Roster_size-cur_league.Num_starter
                             #   Header
                             format_cell_range(sheet, '{0}:{1}'.format(r1, r2), txt_fmt_bld_ctr)
-                            time.sleep(2)
+                            time.sleep(sl_time)
                             #   Summary
                             format_cell_range(sheet, '{0}'.format(r5), txt_fmt_bld_ctr)
-                            time.sleep(2)
+                            time.sleep(sl_time)
                             for wk in range(0, end_week):
                                 #   Position Rows
                                 c1 = 1 + wk*(data_num_cols+1)
@@ -643,54 +645,54 @@ if __name__ == "__main__":
                                             type='NUMBER')))
                                 rules.append(efficient_fmt)
                                 format_cell_range(sheet, '{0}:{0}'.format(c3), txt_fmt_bld_ctr)
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{2}{3}'.format(c1, or1, c5, or7), Border_format('none'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c5, or1), CellFormat(
                                     numberFormat=NumberFormat(
                                         type='PERCENT',
                                         pattern='#%')))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{0}{2}'.format(c2, or3, or7), CellFormat(
                                     numberFormat=NumberFormat(
                                         type='NUMBER',
                                         pattern='0.00#')))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{0}{2}'.format(c4, or3, or7), CellFormat(
                                     numberFormat=NumberFormat(
                                         type='NUMBER',
                                         pattern='0.00#')))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{2}{1}'.format(c1, or1, c5), Border_format('t'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{2}{1}'.format(c1, or2, c5), Border_format('b'))
                                 format_cell_range(sheet, '{0}{1}:{2}{1}'.format(c1, or7, c5), Border_format('b'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{0}{2}'.format(c1, or1, or7), Border_format('l'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{0}{2}'.format(c5, or1, or7), Border_format('r'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{2}{1}'.format(c1, or5, c5), Border_format('tb'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}:{0}{2}'.format(c3, or3, or7), Border_format('lr'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c1, or1), Border_format('tl'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c5, or1), Border_format('tr'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c1, or2), Border_format('bl'))
                                 format_cell_range(sheet, '{0}{1}'.format(c1, or7), Border_format('bl'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c5, or2), Border_format('br'))
                                 format_cell_range(sheet, '{0}{1}'.format(c5, or7), Border_format('br'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c1, or5), Border_format('tbl'))
                                 format_cell_range(sheet, '{0}{1}'.format(c5, or5), Border_format('tbr'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c3, or7), Border_format('blr'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                                 format_cell_range(sheet, '{0}{1}'.format(c3, or5), Border_format('all'))
-                                time.sleep(2)
+                                time.sleep(sl_time)
                         rules.save()
                     # dumdum = sum(~starters_actual['sleeper_id'].isin(starters_bb['sleeper_id']))/len(starters_bb)
                     #   Position Rows
@@ -729,8 +731,14 @@ if __name__ == "__main__":
                             final_list.append(['N/A', 'Empty', 0,
                                 'BN',
                                 0, 'Empty', 'N/A'])
-                    sheet.update(final_list, '{0}{1}:{2}{3}'.format(c1, r1, c5, r7), raw=False)
-                    time.sleep(2)
+                    try:
+                        sheet.update(final_list, '{0}{1}:{2}{3}'.format(c1, r1, c5, r7), raw=False)
+                    except APIError:
+                        sheet.add_rows(len(final_list))
+                        sheet.update(final_list, '{0}{1}:{2}{3}'.format(c1, r1, c5, r7), raw=False)
+                    time.sleep(sl_time)
+                    if not point_count:
+                        sheet.update([[0]], '{0}{1}'.format(c4, r5), raw=False)
             #   Create a year summary tab if it doesn't already exist
             try:
                 sheet = gsheet.worksheet(str(year))
@@ -783,7 +791,7 @@ if __name__ == "__main__":
                         max_table.append([owner_num+1,'',''])
                     #   Standings Table
                     standings_table.append([owner_num+1, '', '', '', '', '=XLOOKUP($I{0},$Q${1}:$Q${2},$R${1}:$R${2})'.format(r5+owner_num, r5, r8), '=INDEX(MATCH($I{0},$Q${1}:$Q${2},0))'.format(r5+owner_num, r5, r8)])
-                #   Create year summary sheet
+                    #   Create year summary sheet
                 sheet = gsheet.add_worksheet(title=str(year), rows=(r8), cols=3+18)
                 #   Write to the sheet
                 sheet.update(weekly_table, 'A1:U{0}'.format(r3), raw=False)
@@ -791,71 +799,71 @@ if __name__ == "__main__":
                 sheet.update(standings_table, 'H{0}:N{1}'.format(r4, r8), raw=False)
                 sheet.update(max_table, 'P{0}:R{1}'.format(r4, r8), raw=False)
                 sheet.update([['=HYPERLINK("'+git+'", "GitHub")']], 'S{0}:S{0}'.format(r4), raw=False)
-                time.sleep(2)
+                time.sleep(sl_time)
                 #   Format the sheet
                 format_cell_range(sheet, 'A1:U{0}'.format(r8), CellFormat(horizontalAlignment='Center'))
                 format_cell_range(sheet, 'A1:U1', txt_fmt_bld)
                 format_cell_range(sheet, 'A{0}:U{0}'.format(r4), txt_fmt_bld)
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A1:U{0}'.format(r3), Border_format('none'))
                 format_cell_range(sheet, 'A{0}:F{1}'.format(r4, r8), Border_format('none'))
                 format_cell_range(sheet, 'H{0}:N{1}'.format(r4, r8), Border_format('none'))
                 format_cell_range(sheet, 'P{0}:R{1}'.format(r4, r8), Border_format('none'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A{0}:U{0}'.format(r3), Border_format('b'))
                 format_cell_range(sheet, 'A{0}:F{0}'.format(r6), Border_format('b'))
                 format_cell_range(sheet, 'A{0}:F{0}'.format(r8), Border_format('b'))
                 format_cell_range(sheet, 'H{0}:N{0}'.format(r7), Border_format('b'))
                 format_cell_range(sheet, 'H{0}:N{0}'.format(r8), Border_format('b'))
                 format_cell_range(sheet, 'P{0}:R{0}'.format(r8), Border_format('b'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A2:A{0}'.format(r3), Border_format('l'))
                 format_cell_range(sheet, 'A{0}:A{1}'.format(r4, r8), Border_format('l'))
                 format_cell_range(sheet, 'H{0}:H{1}'.format(r4, r8), Border_format('l'))
                 format_cell_range(sheet, 'P{0}:P{1}'.format(r4, r8), Border_format('l'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'U2:U{0}'.format(r3), Border_format('r'))
                 format_cell_range(sheet, 'F{0}:F{1}'.format(r4, r8), Border_format('r'))
                 format_cell_range(sheet, 'N{0}:N{1}'.format(r4, r8), Border_format('r'))
                 format_cell_range(sheet, 'R{0}:R{1}'.format(r4, r8), Border_format('r'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A2', Border_format('tl'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'U2', Border_format('tr'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A1:U1', Border_format('tb'))
                 format_cell_range(sheet, 'A{0}:F{0}'.format(r4), (Border_format('tb')))
                 format_cell_range(sheet, 'H{0}:N{0}'.format(r4), Border_format('tb'))
                 format_cell_range(sheet, 'P{0}:R{0}'.format(r4), Border_format('tb'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A{0}'.format(r3), Border_format('bl'))
                 format_cell_range(sheet, 'A{0}'.format(r6), Border_format('bl'))
                 format_cell_range(sheet, 'H{0}'.format(r7), Border_format('bl'))
                 format_cell_range(sheet, 'A{0}'.format(r8), Border_format('bl'))
                 format_cell_range(sheet, 'H{0}'.format(r8), Border_format('bl'))
                 format_cell_range(sheet, 'P{0}'.format(r8), Border_format('bl'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'U{0}'.format(r3), Border_format('br'))
                 format_cell_range(sheet, 'F{0}'.format(r6), Border_format('br'))
                 format_cell_range(sheet, 'F{0}'.format(r8), Border_format('br'))
                 format_cell_range(sheet, 'N{0}'.format(r7), Border_format('br'))
                 format_cell_range(sheet, 'N{0}'.format(r8), Border_format('br'))
                 format_cell_range(sheet, 'R{0}'.format(r8), Border_format('br'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'C2:C{0}'.format(r3), Border_format('lr'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'A{0}'.format(r4), Border_format('tbl'))
                 format_cell_range(sheet, 'H{0}'.format(r4), Border_format('tbl'))
                 format_cell_range(sheet, 'P{0}'.format(r4), Border_format('tbl'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'F{0}'.format(r4), Border_format('tbr'))
                 format_cell_range(sheet, 'N{0}'.format(r4), Border_format('tbr'))
                 format_cell_range(sheet, 'R{0}'.format(r4), Border_format('tbr'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'C{0}'.format(r3), Border_format('blr'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 format_cell_range(sheet, 'C1:C1', Border_format('all'))
-                time.sleep(2)
+                time.sleep(sl_time)
                 #   Format all the color gradient for week
                 rules = get_conditional_format_rules(sheet)
                 for wk in range(0, end_week+1):
@@ -887,4 +895,94 @@ if __name__ == "__main__":
             cur_league.Update(end_week, year)
             sheet = gsheet.worksheet(str(year))
             sheet.update(cur_league.Standings, 'I{0}:L{1}'.format(r5, r8), raw=False)
-            time.sleep(2)
+            time.sleep(sl_time)
+            #   Playoffs
+            playoffs = cur_league.League.get_playoff_winners_bracket()
+            rd1 = []
+            rd2 = []
+            rd3 = []
+            for game in range(0, len(playoffs)):
+                match playoffs[game]['r']:
+                    case 1:
+                        rd1 = rd1 + [game]
+                    case 2:
+                        try:
+                            playoffs[game]['t2_from']['w']
+                            rd2 = rd2 + [game]
+                        except:
+                            pass
+                    case 3:
+                        try:
+                            if ('w' in playoffs[game]['t2_from'] and 'w' in playoffs[game]['t1_from']) or ('l' in playoffs[game]['t2_from'] and 'l' in playoffs[game]['t1_from']):
+                                rd3 = rd3 + [game]
+                        except:
+                            pass
+            elim1 = []
+            elim2 = []
+            elim3 = []
+            temp_all = []
+            for game in rd1:
+                try:
+                    elim1 = elim1 + [playoffs[game]['l']-1]
+                except:
+                    continue
+            for game in rd2:
+                try:
+                    elim2 = elim2 + [playoffs[game]['l']-1]
+                except:
+                    continue
+            for game in rd3:
+                try:
+                    elim3 = elim3 + [playoffs[game]['l']-1]
+                except:
+                    continue
+            owner_team = sheet.get('A{0}:B{1}'.format(r2, r3))
+            bb_standings = sheet.get('Q{0}:Q{1}'.format(r5, r8))
+            playoff_teams = []
+            for team in range(0, num_playoff):
+                temp_team = cur_league.Standings[team][0]
+                for all_team in range(0, len(owner_team)):
+                    if owner_team[all_team][0]==temp_team:
+                    #if owner_team[all_team][1]==temp_team:
+                        temp_num = all_team
+                        for bb_place in range(0, len(bb_standings)):
+                            if temp_team==bb_standings[bb_place][0]:
+                                temp_bb = bb_place
+                                playoff_teams.append({'team': temp_team, 'num': temp_num, 'bb': temp_bb})
+                                continue
+                        continue
+            try:
+                fourth = list(set(elim2).intersection(set(elim3)))[0]
+                second = list(set([fourth])^(set(elim3)))[0]
+                third = list(set([fourth])^(set(elim2)))[0]
+                for team in playoff_teams:
+                    if team['num'] not in elim1 and team['num'] not in elim2 and team['num'] not in elim3:
+                        first = team
+                        continue
+                rd1_elim = []
+                for team in playoff_teams:
+                    if team['num'] in elim1:
+                        rd1_elim.append(team)
+                rd1_elim = sorted(rd1_elim, key=lambda x: x['bb'], reverse=True)
+                playoff_draft = []
+                for team in rd1_elim:
+                    playoff_draft.append(team['team'])
+                for team in playoff_teams:
+                    if team['num'] == fourth:
+                        playoff_draft.append(team['team'])
+                        continue
+                for team in playoff_teams:
+                    if team['num'] == third:
+                        playoff_draft.append(team['team'])
+                        continue
+                for team in playoff_teams:
+                    if team['num'] == second:
+                        playoff_draft.append(team['team'])
+                        continue
+                playoff_draft.append(first['team'])
+                po_draft_tbl = []
+                for row in range(r6+1, r8+1):
+                    po_draft_tbl.append([playoff_draft[row-(r6+1)], '=XLOOKUP(B{0},I{1}:I{2},J{1}:J{2})'.format(row, r5, r7), '=XLOOKUP(B{0},I{1}:I{2},K{1}:K{2})'.format(row, r5, r7)])
+                sheet.update(po_draft_tbl, 'B{0}:D{1}'.format(r6+1, r8), raw=False)
+            except:
+                continue
